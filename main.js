@@ -1,3 +1,108 @@
+// Global flag used to know when the knight is being dragged.
+let knightIsDragging = false;
+
+document.addEventListener("DOMContentLoaded", () => {
+  const knight = document.getElementById("knight");
+  const board = document.querySelector(".board");
+
+  // Attach drag event listeners only to the knight.
+  knight.addEventListener("dragstart", handleDragStart);
+  knight.addEventListener("dragend", handleDragEnd);
+
+  // Create 64 cells (8 x 8) and attach drop listeners to each.
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      const cell = document.createElement("div");
+      cell.classList.add("cell", "dropzone");
+      // Ensure cells are not draggable.
+      cell.setAttribute("draggable", "false");
+
+      // Save position as data attributes.
+      cell.dataset.row = row;
+      cell.dataset.col = col;
+
+      // Set alternating colors.
+      cell.style.backgroundColor = (row + col) % 2 === 0 ? "#a8dadc" : "#5b90b1";
+
+      // Attach drop-related event listeners.
+      cell.addEventListener("dragover", handleOver);
+      cell.addEventListener("dragenter", handleEnter);
+      cell.addEventListener("dragleave", handleLeave);
+      cell.addEventListener("drop", handleDrop);
+
+      board.appendChild(cell);
+    }
+  }
+
+  // Place the knight in an initial cell (for example, cell at row 0, col 0).
+  const initialCell = board.querySelector(".dropzone[data-row='4'][data-col='2']");
+  initialCell.appendChild(knight);
+});
+
+function handleDragStart(ev) {
+  knightIsDragging = true;
+  ev.dataTransfer.effectAllowed = "move";
+  // Set a token "knight" so that the drop handler knows what is being dragged.
+  ev.dataTransfer.setData("text/plain", "knight");
+  setTimeout(function() {
+    knight.style.visibility = "hidden";
+  }, 1);
+}
+  
+function handleDragEnd(ev) {
+  knightIsDragging = false;
+  ev.target.style.visibility = "visible";
+}
+
+function handleOver(ev) {
+  ev.preventDefault(); // Necessary to allow drop.
+  if (!knightIsDragging) return; // Only process if the knight is being dragged.
+  ev.dataTransfer.dropEffect = "move";
+//   ev.target.style.cursor = "grabbing";
+}
+
+function handleEnter(ev) {
+  ev.preventDefault();
+  // Ensure this only applies when the knight is being dragged.
+  if (!knightIsDragging) return;
+  const cell = ev.currentTarget; // currentTarget is the cell.
+  cell.classList.add("over");
+}
+
+function handleLeave(ev) {
+  ev.preventDefault();
+  const cell = ev.currentTarget;
+  cell.classList.remove("over");
+}
+
+function handleDrop(ev) {
+  ev.preventDefault();
+  ev.stopPropagation();
+  
+  const cell = ev.currentTarget; // Get the drop target cell.
+  cell.classList.remove("over");
+
+  // Verify the dragged data is from the knight.
+  const draggedToken = ev.dataTransfer.getData("text/plain");
+  if (draggedToken !== "knight") return;
+  
+  // Obtain the knight element.
+  const knight = document.getElementById("knight");
+  if (!knight) return;
+
+  // If the cell already contains the knight, do nothing.
+  if (cell.contains(knight)) return;
+  
+  // Append the knight to the cell (this moves the knight from its previous parent).
+  cell.appendChild(knight);
+  
+  // Extract and log the cell's row and column from its data attributes.
+  const row = cell.dataset.row;
+  const col = cell.dataset.col;
+  console.log(`Knight dropped in cell at row ${row}, col ${col}`);
+}
+
+
 const validKnightMoves = [
     [2, 1], 
     [2, -1], 
@@ -91,9 +196,7 @@ function reconstructPath(prev, startNode, endNode) {
     return path.reverse();
 }
 
-const [minDistance, path] = knightMoves([0, 0], [7, 7]);
-console.log(`Shortest distance is: ${minDistance}`);
-console.log(path);
+// const [minDistance, path] = knightMoves([0, 0], [7, 7]);
+// console.log(`Shortest distance is: ${minDistance}`);
+// console.log(path);
 
-
- 
