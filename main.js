@@ -200,3 +200,168 @@ function reconstructPath(prev, startNode, endNode) {
 // console.log(`Shortest distance is: ${minDistance}`);
 // console.log(path);
 
+/***************** NEW UI MODULE CODE (Do not change your existing code) *****************/
+
+// Global state to track UI selections and progress.
+const appState = {
+    phase: "select-start", // can be: "select-start", "select-end", "running", "done"
+    startPos: null, // [row, col]
+    endPos: null,   // [row, col]
+    movesCount: 0,
+    path: []
+  };
+  
+  // Define selectEndHandler globally so it can be referenced during setup and reset.
+  function selectEndHandler(e) {
+    if (appState.phase !== "select-end") return;
+    // Remove any previous selection highlighting.
+    const prev = document.querySelector(".dropzone.over");
+    if (prev) prev.classList.remove("over");
+    // Mark the clicked cell as the selected end.
+    const cell = e.currentTarget;
+    cell.classList.add("over");
+    appState.endPos = [parseInt(cell.dataset.row), parseInt(cell.dataset.col)];
+    // Update instruction to advance to next step.
+    document.getElementById("instruction").innerHTML =
+      "<strong><u>Step 3:</u></strong> Click 'Run' to animate the knight along the shortest path.";
+    // Reveal the Run button.
+    document.getElementById("run").style.display = "inline-block";
+  }
+  
+  // Create the UI controls once the DOM is loaded.
+  document.addEventListener("DOMContentLoaded", () => {
+    // Create a controls container inside the existing ".instruct" container.
+    const instruct = document.querySelector(".instruct");
+    const controlsDiv = document.createElement("div");
+    controlsDiv.id = "controls";
+    controlsDiv.innerHTML = `
+      <p id="instruction">
+        <strong><u>Step 1:</u></strong> Drag the knight to your desired start cell and click 'Lock Start'.
+      </p>
+      <button id="lockStart">Lock Start</button>
+      <button id="run" style="display: none;">Run</button>
+      <p id="result" style="display: none;">Shortest moves: <span id="moveCount"></span></p>
+      <button id="reset" style="display: none;">Reset</button>
+    `;
+    instruct.appendChild(controlsDiv);
+  
+    // Lock Start: record the current cell as the start.
+    document.getElementById("lockStart").addEventListener("click", () => {
+      const knight = document.getElementById("knight");
+      const parentCell = knight.parentElement;
+      if (!parentCell || !parentCell.classList.contains("dropzone")) {
+        alert("Please drop the knight onto a valid cell before locking the start location.");
+        return;
+      }
+      appState.startPos = [
+        parseInt(parentCell.dataset.row),
+        parseInt(parentCell.dataset.col)
+      ];
+      appState.phase = "select-end";
+      // Update instructions to prompt for end selection.
+      document.getElementById("instruction").innerHTML =
+        "<strong><u>Step 2:</u></strong> Click on a cell to select the end location.";
+      document.getElementById("lockStart").style.display = "none";
+  
+      // Attach click listeners for end selection.
+      const dropzones = document.querySelectorAll(".dropzone");
+      dropzones.forEach(cell => {
+        cell.addEventListener("click", selectEndHandler);
+      });
+    });
+  
+    // Run: compute path and animate the knight.
+    document.getElementById("run").addEventListener("click", () => {
+      if (!appState.startPos || !appState.endPos) {
+        alert("Both start and end locations must be selected.");
+        return;
+      }
+      // Hide the Run button.
+      document.getElementById("run").style.display = "none";
+      appState.phase = "running";
+      // Update instructions.
+      document.getElementById("instruction").innerHTML =
+        "<strong><u>Step 3:</u></strong> Animating knight, please wait...";
+      // Compute the shortest path using your knightMoves function.
+      const [minDistance, path] = knightMoves(appState.startPos, appState.endPos);
+      console.log("Computed Path:", path);
+      appState.path = path;
+      appState.movesCount = 0;
+      animateKnightPath(path);
+    });
+  
+    // Reset: clear state and restore initial UI.
+    document.getElementById("reset").addEventListener("click", () => {
+      resetApp();
+    });
+  });
+  
+  // Animate the knight moving along the computed path.
+  // For each move, the cell gets the "over" class so you can see it highlighted,
+  // and the move counter is updated in real time.
+  function animateKnightPath(path) {
+    let i = 1; // Knight is already at path[0].
+    const interval = setInterval(() => {
+      if (i >= path.length) {
+        clearInterval(interval);
+        // Remove all "over" classes.
+        document.querySelectorAll(".dropzone.over").forEach(cell => cell.classList.remove("over"));
+        appState.phase = "done";
+        document.getElementById("result").style.display = "block";
+        document.getElementById("moveCount").textContent = appState.movesCount;
+        document.getElementById("reset").style.display = "inline-block";
+        document.getElementById("instruction").innerHTML =
+          `<strong><u>Animation complete.</u></strong> Shortest moves: ${appState.movesCount}`;
+        return;
+      }
+      // Get the dropzone corresponding to the next step.
+      const board = document.querySelector(".board");
+      const cell = board.querySelector(
+        `.dropzone[data-row="${path[i][0]}"][data-col="${path[i][1]}"]`
+      );
+      if (cell) {
+        // Animate: Append the knight to the cell and mark it with "over" (highlight).
+        const knight = document.getElementById("knight");
+        cell.appendChild(knight);
+        cell.classList.add("over");
+        appState.movesCount++;
+        // Update the counter display in real time.
+        document.getElementById("moveCount").textContent = appState.movesCount;
+      }
+      i++;
+    }, 500); // Using 500ms between moves for a smoother feel.
+  }
+    
+  // Reset the UI and state.
+  function resetApp() {
+    appState.phase = "select-start";
+    appState.startPos = null;
+    appState.endPos = null;
+    appState.movesCount = 0;
+    appState.path = [];
+    
+    // Reset the instructions in the controls area.
+    document.getElementById("instruction").innerHTML =
+      "<strong><u>Step 1:</u></strong> Drag the knight to your desired start location and click 'Lock Start'.";
+    document.getElementById("lockStart").style.display = "inline-block";
+    document.getElementById("run").style.display = "none";
+    document.getElementById("result").style.display = "none";
+    document.getElementById("reset").style.display = "none";
+    
+    // Remove any highlighting from dropzones.
+    const dropzones = document.querySelectorAll(".dropzone");
+    dropzones.forEach(cell => {
+      cell.classList.remove("over");
+      cell.removeEventListener("click", selectEndHandler);
+    });
+    
+    // Move the knight back to its original initial cell (for example, row 4, col 2).
+    const board = document.querySelector(".board");
+    const initialCell = board.querySelector(".dropzone[data-row='4'][data-col='2']");
+    const knight = document.getElementById("knight");
+    initialCell.appendChild(knight);
+  }
+  
+  /***************** END NEW UI MODULE CODE *****************/
+  
+  
