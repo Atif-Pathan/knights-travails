@@ -1,5 +1,4 @@
 # Knight's Travails
-
 ---
 
 ## [Try It Out Live!](https://atif-pathan.github.io/knights-travails/) ⚔️♞
