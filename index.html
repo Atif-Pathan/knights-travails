@@ -12,9 +12,23 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <div class="container">
+    <div class="container">        
         <div class="board"></div>
         <div class="instruct">
+            <div class="intro">
+                <div id="introContent">
+                  <h2><strong><u>Welcome to Knight's Travails</u></strong></h2>
+                  <p>
+                    This application demonstrates the classic "Knight's Travails" problem,
+                    using a Breadth-First Search (BFS) algorithm to compute the shortest path for a knight on a chessboard.
+                  </p>
+                  <p>
+                    In chess, a knight can move from any square to any other square given enough moves.
+                    Experiment by dragging the knight to select a start location, then choose an end location,
+                    and watch the knight animate along the computed shortest path!
+                  </p>
+                </div>
+            </div>  
             <div id="knight" class="knight-container draggable" draggable="true">
                 <i class="fa-solid fa-chess-knight"></i>
             </div>

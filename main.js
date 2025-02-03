@@ -236,11 +236,11 @@ const appState = {
     controlsDiv.id = "controls";
     controlsDiv.innerHTML = `
       <p id="instruction">
-        <strong><u>Step 1:</u></strong> Drag the knight to your desired start cell and click 'Lock Start'.
+        <strong><u>Step 1:</u></strong> Drag the knight to your desired start cell and lock it.
       </p>
       <button id="lockStart">Lock Start</button>
       <button id="run" style="display: none;">Run</button>
-      <p id="result" style="display: none;">Shortest moves: <span id="moveCount"></span></p>
+      <p id="result" style="display: none;"><strong>Shortest moves: <span id="moveCount"></span></strong></p>
       <button id="reset" style="display: none;">Reset</button>
     `;
     instruct.appendChild(controlsDiv);
@@ -310,8 +310,7 @@ const appState = {
         document.getElementById("result").style.display = "block";
         document.getElementById("moveCount").textContent = appState.movesCount;
         document.getElementById("reset").style.display = "inline-block";
-        document.getElementById("instruction").innerHTML =
-          `<strong><u>Animation complete.</u></strong> Shortest moves: ${appState.movesCount}`;
+        document.getElementById("instruction").innerHTML = ``;
         return;
       }
       // Get the dropzone corresponding to the next step.
@@ -329,7 +328,7 @@ const appState = {
         document.getElementById("moveCount").textContent = appState.movesCount;
       }
       i++;
-    }, 500); // Using 500ms between moves for a smoother feel.
+    }, 700); // Using 500ms between moves for a smoother feel.
   }
     
   // Reset the UI and state.
@@ -342,7 +341,7 @@ const appState = {
     
     // Reset the instructions in the controls area.
     document.getElementById("instruction").innerHTML =
-      "<strong><u>Step 1:</u></strong> Drag the knight to your desired start location and click 'Lock Start'.";
+      "<strong><u>Step 1:</u></strong> Drag the knight to your desired start location and 'Lock' it.";
     document.getElementById("lockStart").style.display = "inline-block";
     document.getElementById("run").style.display = "none";
     document.getElementById("result").style.display = "none";
