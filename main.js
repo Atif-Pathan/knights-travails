@@ -196,12 +196,6 @@ function reconstructPath(prev, startNode, endNode) {
     return path.reverse();
 }
 
-// const [minDistance, path] = knightMoves([0, 0], [7, 7]);
-// console.log(`Shortest distance is: ${minDistance}`);
-// console.log(path);
-
-/***************** NEW UI MODULE CODE (Do not change your existing code) *****************/
-
 // Global state to track UI selections and progress.
 const appState = {
     phase: "select-start", // can be: "select-start", "select-end", "running", "done"
@@ -359,8 +353,5 @@ const appState = {
     const initialCell = board.querySelector(".dropzone[data-row='4'][data-col='2']");
     const knight = document.getElementById("knight");
     initialCell.appendChild(knight);
-  }
-  
-  /***************** END NEW UI MODULE CODE *****************/
-  
+}
   
